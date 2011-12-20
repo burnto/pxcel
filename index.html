@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Grid</title>
+	<style type="text/css">
+	body {
+		margin: 0;
+		overflow: hidden;
+	}
+
+	canvas {
+		display: block;
+		width: 480px;
+		margin: 50px auto;
+	}
+	</style>
+	<script type="text/javascript" src="paper.js"></script>
+	<script type="text/paperscript" canvas="canvas">
+		/////////////////////////////////////////////////////////////////////
+		// Values
+
+		var zoom = 30;
+		var size = 16;
+		for(var y = 0; y < size; y++) {
+			for(var x = 0; x < size; x++) {
+				var p = new Point(x, y) * zoom;
+				var rect = new Rectangle(p, p + zoom);
+				var rectPath = new Path.Rectangle(rect);
+				rectPath.fillColor = "black";
+				rectPath.index = y * size + x;
+			}
+		}
+
+		var hitOptions = {
+		    segments: false,
+		    stroke: false,
+		    fill: true,
+		    tolerance: 0
+		};
+
+		var pen = 1;
+
+		function onMouseDown(event) {
+		    var hitResult = project.hitTest(event.point, hitOptions);
+		    if (hitResult) {
+	    		pen = hitResult.item.fillColor.gray == 1 ? 0 : 1;
+	    		hitResult.item.fillColor.gray = pen;
+		    }
+		}
+
+		function onMouseDrag(event) {
+		    var hitResult = project.hitTest(event.point, hitOptions);
+		    if (hitResult) {
+	    		hitResult.item.fillColor.gray = pen;
+		    }
+		}
+
+		function onMouseUp(event) {
+			history.pushState({foo: "bar"}, "foo page", "/foo")
+		}
+
+	</script>
+</head>
+<body>
+	<div id='canvasContainer'>
+		<canvas id="canvas" width='480px' height='480px'></canvas>
+	</div>
+</body>
+</html>
