@@ -12,7 +12,10 @@
 	#canvasContainer {
 		display: block;
 		width: 480px;
+		height: 480px;
 		margin: 50px auto;
+		border: 1px solid #ccc;
+		padding: 1px;
 	}
 	</style>
 	<script type="text/javascript" src="signals.min.js"></script>
@@ -33,11 +36,10 @@
 				var p = new Point(x, y) * zoom;
 				var rect = new Rectangle(p, p + zoom);
 				var rectPath = new Path.Rectangle(rect);
-				rectPath.fillColor = "white";
+				rectPath.fillColor = 'red';
 				rectPath.index = y * size + x;
 				values.push(false);
 				squares.push(rectPath);
-				console.log(x + ", " + y)
 			}
 		}
 
@@ -47,6 +49,8 @@
 		    fill: true,
 		    tolerance: 0
 		};
+		function onFrame(event) {
+		}
 
 		function pickle() {
 			s = ''
@@ -61,37 +65,33 @@
 		}
 
 		function unpickle(s) {
-			values = [];
 			num = size * size;
 			for (var i = 0; i < s.length; i++) {
 				var v = alphabet.indexOf(s[i]);
 				for (var j = 0; j < 6; j++) {
-					// console.log(v + ", " + (v & (1 << j)));
 					var b = (v >> j) & 1;
-					// console.log(v + ", " + j + ": " + b);
-					values.push(b);
+					try {
+						values[i * 6 + j] = b;
+						squares[i * 6 + j].fillColor.gray = b;
+					// console.log(squares[i * 6 + j].fillColor);
+					} catch(e) {
+
+					}
 				}
 			}
-			while(values.length < num) {
-				values.push(false);
-			}
-			for (var i = 0; i < squares.length; i++) {
-				squares[i].fillColor = values[i]
-			}
-			return values;
 		}
 
 		function set(item, color) {
 			if(item.fillColor != color) {
 	    		values[item.index] = (color === 1);
-				hasher.setHash(pickle()); //change hash value (generates new history record)
+	    		item.fillColor = (color === 1);
 			}
 		}
 
 		function onMouseDown(event) {
 		    var hitResult = project.hitTest(event.point, hitOptions);
 		    if (hitResult) {
-	    		pen = hitResult.item.fillColor.gray == 1 ? 0 : 1;
+	    		pen = hitResult.item.fillColor.gray > 0.5 ? 0 : 1;
 		    	set(hitResult.item, pen);
 		    }
 		}
@@ -109,6 +109,7 @@
 
 		//handle hash changes
 		function handleChanges(newHash, oldHash){
+			console.log(newHash);
 			unpickle(newHash);
 		}
 
