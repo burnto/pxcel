@@ -22,7 +22,13 @@
 	<script type="text/javascript" src="hasher.min.js"></script>
 	<script type="text/javascript" src='bean.min.js'></script>
 	<script type="text/javascript">
-		var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+		if (typeof window.console === 'undefined' || !console.log) {
+			window.console = {
+				log: function() {}
+			};
+		}
+
+		var alphabet = "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-";
 		var zoom = 30,
 			size = 16,
 			values = [],
@@ -35,16 +41,12 @@
 		bean.add(document, 'DOMContentLoaded', function() {
 			canvas = document.getElementById("canvas");
 			context = canvas.getContext("2d");
-			imageData = context.createImageData(16, 16);
-			console.log(imageData.data.length);
-
 
 			// event handling
 
 			var pen = null;
 			bean.add(canvas, 'mousedown', function(e) {
 				var i = getIndex(e);
-				console.log(i);
 				pen = values[i] = !values[i];
 				bean.fire(document, 'pxchange', [i, pen]);
 			});
@@ -61,12 +63,10 @@
 
 			bean.add(document, 'mouseup', function(e) {
 				pen = null;
-				console.log('up');
 				hasher.setHash(pickle()); //change hash value (generates new history record)
 			})
 
 			bean.add(document, 'pxchange', function(i, b) {
-				console.log([i, b])
 				setPixel(i, b);
 			})
 
@@ -83,7 +83,6 @@
 		function setPixel(i, c) {
 			var x = i % size;
 			var y = Math.floor(i / size);
-			console.log([i, x, y])
 			context.fillStyle = (c ? 'black' : 'white');
 			context.fillRect(x * zoom, y * zoom, zoom, zoom);
 		}
