@@ -55,7 +55,6 @@ if (typeof window.console === 'undefined' || !console.log) {
 			setPixel(i, b);
 		})
 
-		hasher.changed.add(handleChanges); 
 		hasher.initialized.add(handleChanges);
 		hasher.init(); //initialize hasher (start listening for history changes)
 		
