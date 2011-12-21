@@ -20,36 +20,72 @@
 	</style>
 	<script type="text/javascript" src="signals.min.js"></script>
 	<script type="text/javascript" src="hasher.min.js"></script>
-	<script type="text/javascript" src="paper.js"></script>
-	<script type="text/paperscript" canvas="canvas">
-		/////////////////////////////////////////////////////////////////////
-		// Values
-
+	<script type="text/javascript" src='bean.min.js'></script>
+	<script type="text/javascript">
 		var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-		var zoom = 30;
-		var size = 16;
-		var values = [];
-		var squares = [];
-
-		for(var y = 0; y < size; y++) {
-			for(var x = 0; x < size; x++) {
-				var p = new Point(x, y) * zoom;
-				var rect = new Rectangle(p, p + zoom);
-				var rectPath = new Path.Rectangle(rect);
-				rectPath.fillColor = 'white';
-				rectPath.index = y * size + x;
-				values.push(false);
-				squares.push(rectPath);
-			}
+		var zoom = 30,
+			size = 16,
+			values = [],
+			imageData, canvas, context;
+		
+		for (var i = 0; i < size * size; i++) {
+			values.push(false);
 		}
 
-		var hitOptions = {
-		    segments: false,
-		    stroke: false,
-		    fill: true,
-		    tolerance: 0
-		};
-		function onFrame(event) {
+		bean.add(document, 'DOMContentLoaded', function() {
+			canvas = document.getElementById("canvas");
+			context = canvas.getContext("2d");
+			imageData = context.createImageData(16, 16);
+			console.log(imageData.data.length);
+
+
+			// event handling
+
+			var pen = null;
+			bean.add(canvas, 'mousedown', function(e) {
+				var i = getIndex(e);
+				console.log(i);
+				pen = values[i] = !values[i];
+				bean.fire(document, 'pxchange', [i, pen]);
+			});
+
+			bean.add(canvas, 'mousemove', function(e) {
+				if (pen !== null) {
+					var i = getIndex(e);
+					if (values[i] !== pen) {
+						values[i] = pen;
+						bean.fire(document, 'pxchange', [i, pen])
+					}
+				}
+			})
+
+			bean.add(document, 'mouseup', function(e) {
+				pen = null;
+				console.log('up');
+				hasher.setHash(pickle()); //change hash value (generates new history record)
+			})
+
+			bean.add(document, 'pxchange', function(i, b) {
+				console.log([i, b])
+				setPixel(i, b);
+			})
+
+			hasher.changed.add(handleChanges); 
+ 			hasher.initialized.add(handleChanges);
+			hasher.init(); //initialize hasher (start listening for history changes)
+
+		});
+
+		function getIndex(e) {
+			return Math.floor(e.offsetY / zoom) * size + Math.floor(e.offsetX / zoom)
+		}
+
+		function setPixel(i, c) {
+			var x = i % size;
+			var y = Math.floor(i / size);
+			console.log([i, x, y])
+			context.fillStyle = (c ? 'black' : 'white');
+			context.fillRect(x * zoom, y * zoom, zoom, zoom);
 		}
 
 		function pickle() {
@@ -65,57 +101,23 @@
 		}
 
 		function unpickle(s) {
-			num = size * size;
 			for (var i = 0; i < s.length; i++) {
 				var v = alphabet.indexOf(s[i]);
 				for (var j = 0; j < 6; j++) {
 					var b = (v >> j) & 1;
-					try {
-						values[i * 6 + j] = b;
-						squares[i * 6 + j].fillColor.gray = b;
-					// console.log(squares[i * 6 + j].fillColor);
-					} catch(e) {
-
+					var index = i * 6 + j;
+					if (index < values.length && values[index] !== b) {
+						values[index] = b;
+						bean.fire(document, 'pxchange', [index, b])
 					}
 				}
 			}
 		}
 
-		function set(item, color) {
-			if(item.fillColor != color) {
-	    		values[item.index] = (color === 1);
-	    		item.fillColor = (color === 1);
-			}
-		}
-
-		function onMouseDown(event) {
-		    var hitResult = project.hitTest(event.point, hitOptions);
-		    if (hitResult) {
-	    		pen = hitResult.item.fillColor.gray > 0.5 ? 0 : 1;
-		    	set(hitResult.item, pen);
-		    }
-		}
-
-		function onMouseDrag(event) {
-		    var hitResult = project.hitTest(event.point, hitOptions);
-		    if (hitResult) {
-		    	set(hitResult.item, pen);
-		    }
-		}
-
-		function onMouseUp(event) {
-			hasher.setHash(pickle()); //change hash value (generates new history record)
-		}
-
-		//handle hash changes
 		function handleChanges(newHash, oldHash){
 			console.log(newHash);
 			unpickle(newHash);
 		}
-
-		hasher.changed.add(handleChanges); //add hash change listener
-		hasher.initialized.add(handleChanges); //add initialized listener (to grab initial value in case it is already set)
-		hasher.init(); //initialize hasher (start listening for history changes)
 
 
 	</script>
