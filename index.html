@@ -6,16 +6,24 @@
 	<style type="text/css">
 	body {
 		margin: 0;
-		overflow: hidden;
+		/*overflow: hidden;*/
+		-moz-user-select: none;
+		-webkit-user-select: none;
+	}
+	#canvasContainer, #controls {
+		width: 400px;		
+		margin: 0px auto;
 	}
 
 	#canvasContainer {
 		display: block;
-		width: 480px;
-		height: 480px;
-		margin: 50px auto;
+		margin: 50px auto 10px;
 		border: 1px solid #ccc;
 		padding: 1px;
+		height: 400px;
+	}
+	#canvas {
+		cursor: pointer;
 	}
 	</style>
 	<script type="text/javascript" src="signals.min.js"></script>
@@ -25,7 +33,11 @@
 </head>
 <body>
 	<div id='canvasContainer'>
-		<canvas id="canvas" width='480px' height='480px'></canvas>
+		<canvas id="canvas" width='400px' height='400px'></canvas>
 	</div>
+	<section id='controls'>
+		<a href='#' id='clear'>clear</a>
+		<a href='#' id='invert'>invert</a>
+	</section>
 </body>
 </html>

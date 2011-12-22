@@ -8,11 +8,12 @@ if (typeof window.console === 'undefined' || !console.log) {
 	
 	// init variables
 	var alphabet = "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-";
-	var zoom = 30,
+	var zoom = 25,
 		size = 16,
 		values = [],
-		title = 'pxcel',
-		imageData, canvas, context;
+		pen = null,
+		context, 
+		titleInput;
 	
 	// functions
 
@@ -22,46 +23,80 @@ if (typeof window.console === 'undefined' || !console.log) {
 			values.push(false);
 		}
 
-		canvas = document.getElementById("canvas");
+		var canvas = document.getElementById("canvas");
 		context = canvas.getContext("2d");
 
-		// event handling
+		// draw events
+		bean.add(canvas, 'mousedown', mousedown);
+		bean.add(canvas, 'mousemove', mousemove);
+		bean.add(document, 'mouseup', mouseup);
 
-		var pen = null;
-		bean.add(canvas, 'mousedown', function(e) {
-			var i = getIndex(e);
-			pen = values[i] = !values[i];
-			bean.fire(document, 'pxchange', [i, pen]);
-		});
+		bean.add(document.getElementById('clear'), 'click', clear);
+		bean.add(document.getElementById('invert'), 'click', invert);
 
-		bean.add(canvas, 'mousemove', function(e) {
-			if (pen !== null) {
-				var i = getIndex(e);
-				if (values[i] !== pen) {
-					values[i] = pen;
-					bean.fire(document, 'pxchange', [i, pen])
-				}
-			}
-		})
+		// retitling
+		// titleInput = document.getElementById("title");
+		// bean.add(titleInput, 'keyup', titlechange);
 
-		bean.add(document, 'mouseup', function(e) {
-			pen = null;
-			hasher.setHash(pickle()); //change hash value (generates new history record)
-		})
+		// custom events
+		bean.add(document, 'pxchange', setPixel);
 
-		// custom
-
-		bean.add(document, 'pxchange', function(i, b) {
-			setPixel(i, b);
-		})
-
-		hasher.initialized.add(handleChanges);
-		hasher.init(); //initialize hasher (start listening for history changes)
+		// hasher
+		hasher.changed.add(hashinit);
+		hasher.initialized.add(hashinit);
+		hasher.init(); 
 		
 	},
 
+	clear = function (e) {
+		for (var i = 0; i < values.length; i++) {
+			if (values[i] !== false) {
+				values[i] = false;
+				bean.fire(document, 'pxchange', [i, false]);
+			}
+		}
+		save();
+	  e.preventDefault();
+	  e.stopPropagation();
+	},
+
+	invert = function (e) {
+		for (var i = 0; i < values.length; i++) {
+			values[i] = !values[i];
+			bean.fire(document, 'pxchange', [i, values[i]]);
+		}
+		save();
+	  e.preventDefault();
+	  e.stopPropagation();
+	},
+
+
+	mousedown = function (e) {
+		var i = getIndex(e);
+		pen = values[i] = !values[i];
+		bean.fire(document, 'pxchange', [i, pen]);		
+	},
+
+	mousemove = function (e) {
+		if (pen !== null) {
+			var i = getIndex(e);
+			if (values[i] !== pen) {
+				values[i] = pen;
+				bean.fire(document, 'pxchange', [i, pen])
+			}
+		}		
+	},
+
+	mouseup = function (e) {
+		pen = null;
+		save();
+	},
+
 	getIndex = function (e) {
-		return Math.floor(e.offsetY / zoom) * size + Math.floor(e.offsetX / zoom)
+		var mouseY = Math.min(e.offsetY - 1, size * zoom),
+				mouseX = Math.min(e.offsetX - 1, size * zoom);
+		console.log([mouseX, mouseY, e.offsetX, e.offsetY])
+		return Math.floor(mouseY / zoom) * size + Math.floor(mouseX / zoom)
 	},
 
 	setPixel = function (i, c) {
@@ -80,16 +115,13 @@ if (typeof window.console === 'undefined' || !console.log) {
 			}
 			s += alphabet[v];
 		}
-		return s + "&" + encodeURIComponent(title);
+		console.log('pickled ' + s);
+		return s;
 	},
 
+	
 	unpickle = function (hash) {
-		var h = hash.split('&');
-		var s = h[0];
-		if (h.length > 1) {
-			title = document.title = escape(decodeURIComponent(h[1])).replace('_', ' ');
-
-		}
+		var s = hash;
 		for (var i = 0; i < s.length; i++) {
 			var v = alphabet.indexOf(s[i]);
 			for (var j = 0; j < 6; j++) {
@@ -103,8 +135,15 @@ if (typeof window.console === 'undefined' || !console.log) {
 		}
 	},
 
-	handleChanges = function (newHash, oldHash){
-		console.log(newHash);
+	save = function () {
+		hasher.setHash(pickle()); //change hash value (generates new history record)
+	}
+
+	hashchange = function (newHash, oldHash){
+		// var h = hasher.getHashAsArray()
+	};
+
+	hashinit = function (newHash, oldHash){
 		unpickle(newHash);
 	};
 
