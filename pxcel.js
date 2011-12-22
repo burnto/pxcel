@@ -13,18 +13,22 @@ if (typeof window.console === 'undefined' || !console.log) {
 		values = [],
 		pen = null,
 		context, 
-		titleInput;
+		previewContext;
 	
 	// functions
 
 	var init = function () {
 
-		for (var i = 0; i < size * size; i++) {
-			values.push(false);
-		}
-
 		var canvas = document.getElementById("canvas");
 		context = canvas.getContext("2d");
+
+		var previewCanvas = document.getElementById("previewCanvas");
+		previewContext = previewCanvas.getContext("2d");
+
+		for (var i = 0; i < size * size; i++) {
+			values.push(false);
+			// updatePreview(i);
+		}
 
 		// draw events
 		bean.add(canvas, 'mousedown', mousedown);
@@ -47,6 +51,17 @@ if (typeof window.console === 'undefined' || !console.log) {
 		hasher.init(); 
 		
 	},
+
+	// updatePreview = function (i) {
+	// 	// for (var i = 0; i < values.length; i++) {
+	// 	var v = values[i] ? 0 : 255;
+	// 	imagePixels[i * 4] = v;
+	// 	imagePixels[i * 4 + 1] = v;
+	// 	imagePixels[i * 4 + 2] = v;
+	// 	imagePixels[i * 4 + 3] = 255;
+	// 	// }
+	// 	// console.log(imagePixels);
+	// },
 
 	clear = function (e) {
 		for (var i = 0; i < values.length; i++) {
@@ -93,9 +108,8 @@ if (typeof window.console === 'undefined' || !console.log) {
 	},
 
 	getIndex = function (e) {
-		var mouseY = Math.min(e.offsetY - 1, size * zoom),
-				mouseX = Math.min(e.offsetX - 1, size * zoom);
-		console.log([mouseX, mouseY, e.offsetX, e.offsetY])
+		var mouseY = Math.min(e.offsetY, size * zoom),
+				mouseX = Math.min(e.offsetX, size * zoom);
 		return Math.floor(mouseY / zoom) * size + Math.floor(mouseX / zoom)
 	},
 
@@ -104,6 +118,10 @@ if (typeof window.console === 'undefined' || !console.log) {
 		var y = Math.floor(i / size);
 		context.fillStyle = (c ? 'black' : 'white');
 		context.fillRect(x * zoom, y * zoom, zoom, zoom);
+
+		previewContext.fillStyle = context.fillStyle;
+		previewContext.fillRect(x, y, 1, 1);
+		// updatePreview(i);
 	},
 
 	pickle = function () {

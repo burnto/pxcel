@@ -6,38 +6,51 @@
 	<style type="text/css">
 	body {
 		margin: 0;
-		/*overflow: hidden;*/
 		-moz-user-select: none;
 		-webkit-user-select: none;
 	}
-	#canvasContainer, #controls {
-		width: 400px;		
-		margin: 0px auto;
+	#container {
+		width: 430px;
+		margin: 50px auto 10px;
 	}
 
 	#canvasContainer {
-		display: block;
-		margin: 50px auto 10px;
 		border: 1px solid #ccc;
 		padding: 1px;
 		height: 400px;
+		float: left;
+		margin-right: 5px;
 	}
 	#canvas {
 		cursor: pointer;
+		height: 400px;
+		width: 400px;
 	}
-	</style>
+	#previewCanvas {
+		padding: 1px;
+		border: 1px solid #ccc;
+	}
+/*	#controls {
+		position: absolute;
+		left: 420px;
+		top: 0px;
+	}
+*/	</style>
 	<script type="text/javascript" src="signals.min.js"></script>
 	<script type="text/javascript" src="hasher.min.js"></script>
 	<script type="text/javascript" src='bean.min.js'></script>
 	<script type="text/javascript" src='pxcel.js'></script>
 </head>
 <body>
+<div id='container'>
 	<div id='canvasContainer'>
 		<canvas id="canvas" width='400px' height='400px'></canvas>
 	</div>
+	<canvas id="previewCanvas" width='16px' height='16px'></canvas>
 	<section id='controls'>
 		<a href='#' id='clear'>clear</a>
 		<a href='#' id='invert'>invert</a>
 	</section>
+</div>
 </body>
 </html>
