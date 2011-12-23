@@ -4,16 +4,18 @@ if (typeof window.console === 'undefined' || !console.log) {
 	};
 }
 
-(function () {
+$.domReady(function() {
 	
 	// init variables
+
 	var alphabet = "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-";
 	var zoom = 25,
 		size = 16,
+		numPreviews = 2,
 		values = [],
 		pen = null,
-		context, 
-		previewContext;
+		context;
+
 	
 	// functions
 
@@ -22,52 +24,44 @@ if (typeof window.console === 'undefined' || !console.log) {
 		var canvas = document.getElementById("canvas");
 		context = canvas.getContext("2d");
 
-		var previewCanvas = document.getElementById("previewCanvas");
-		previewContext = previewCanvas.getContext("2d");
-
 		for (var i = 0; i < size * size; i++) {
 			values.push(false);
-			// updatePreview(i);
 		}
 
 		// draw events
-		bean.add(canvas, 'mousedown', mousedown);
-		bean.add(canvas, 'mousemove', mousemove);
-		bean.add(document, 'mouseup', mouseup);
+		$(canvas).on('mousedown touchstart', mousedown);
+		$(canvas).on('mousemove touchmove', mousemove);
+		$(document).on('mouseup touchend touchcancel', mouseup);
 
-		bean.add(document.getElementById('clear'), 'click', clear);
-		bean.add(document.getElementById('invert'), 'click', invert);
 
-		// retitling
-		// titleInput = document.getElementById("title");
-		// bean.add(titleInput, 'keyup', titlechange);
+		document.body.addEventListener('touchmove', function(event) {
+		  event.preventDefault();
+		}, false); 
+
+		$("#clear").click(clear);
+		$("#invert").click(invert);
+
+		// TODO
+		// $(document).keypress(function(e) {
+		// 	console.log(e)
+		// 	console.log(e.key)
+		// });
 
 		// custom events
-		bean.add(document, 'pxchange', setPixel);
+		$(document.body).on('pxchange', setPixel);
 
-		// hasher
-		hasher.changed.add(hashinit);
-		hasher.initialized.add(hashinit);
-		hasher.init(); 
-		
+		$(window).on('hashchange', function () {
+		    var hash = $.hash();
+		    hashinit(hash);
+		});
+		hashinit($.hash())	
 	},
-
-	// updatePreview = function (i) {
-	// 	// for (var i = 0; i < values.length; i++) {
-	// 	var v = values[i] ? 0 : 255;
-	// 	imagePixels[i * 4] = v;
-	// 	imagePixels[i * 4 + 1] = v;
-	// 	imagePixels[i * 4 + 2] = v;
-	// 	imagePixels[i * 4 + 3] = 255;
-	// 	// }
-	// 	// console.log(imagePixels);
-	// },
 
 	clear = function (e) {
 		for (var i = 0; i < values.length; i++) {
 			if (values[i] !== false) {
 				values[i] = false;
-				bean.fire(document, 'pxchange', [i, false]);
+				$(document.body).emit('pxchange', [i, false]);
 			}
 		}
 		save();
@@ -78,7 +72,7 @@ if (typeof window.console === 'undefined' || !console.log) {
 	invert = function (e) {
 		for (var i = 0; i < values.length; i++) {
 			values[i] = !values[i];
-			bean.fire(document, 'pxchange', [i, values[i]]);
+			$(document.body).emit('pxchange', [i, values[i]]);
 		}
 		save();
 	  e.preventDefault();
@@ -89,7 +83,7 @@ if (typeof window.console === 'undefined' || !console.log) {
 	mousedown = function (e) {
 		var i = getIndex(e);
 		pen = values[i] = !values[i];
-		bean.fire(document, 'pxchange', [i, pen]);		
+		$(document.body).emit('pxchange', [i, pen]);		
 	},
 
 	mousemove = function (e) {
@@ -97,7 +91,7 @@ if (typeof window.console === 'undefined' || !console.log) {
 			var i = getIndex(e);
 			if (values[i] !== pen) {
 				values[i] = pen;
-				bean.fire(document, 'pxchange', [i, pen])
+				$(document.body).emit('pxchange', [i, pen])
 			}
 		}		
 	},
@@ -113,15 +107,20 @@ if (typeof window.console === 'undefined' || !console.log) {
 		return Math.floor(mouseY / zoom) * size + Math.floor(mouseX / zoom)
 	},
 
-	setPixel = function (i, c) {
+	setPixel = function (i, v) {
 		var x = i % size;
 		var y = Math.floor(i / size);
-		context.fillStyle = (c ? 'black' : 'white');
+		context.fillStyle = (v ? 'black' : 'white');
 		context.fillRect(x * zoom, y * zoom, zoom, zoom);
 
-		previewContext.fillStyle = context.fillStyle;
-		previewContext.fillRect(x, y, 1, 1);
-		// updatePreview(i);
+		for (var z = 1; z < numPreviews + 1; z++) {
+			var c = $("canvas.preview.zoom" + z).get(0);
+			if (c) {
+				var ctx = c.getContext('2d');
+				ctx.fillStyle = context.fillStyle;
+				ctx.fillRect(x * z, y * z, z, z);
+			}
+		}
 	},
 
 	pickle = function () {
@@ -133,7 +132,6 @@ if (typeof window.console === 'undefined' || !console.log) {
 			}
 			s += alphabet[v];
 		}
-		console.log('pickled ' + s);
 		return s;
 	},
 
@@ -147,24 +145,24 @@ if (typeof window.console === 'undefined' || !console.log) {
 				var index = i * 6 + j;
 				if (index < values.length && values[index] !== b) {
 					values[index] = b;
-					bean.fire(document, 'pxchange', [index, b])
+					$(document.body).emit('pxchange', [index, b])
 				}
 			}
 		}
 	},
 
 	save = function () {
-		hasher.setHash(pickle()); //change hash value (generates new history record)
+		$.hash(pickle()); //change hash value (generates new history record)
 	}
 
-	hashchange = function (newHash, oldHash){
+	hashchange = function (newHash){
 		// var h = hasher.getHashAsArray()
 	};
 
-	hashinit = function (newHash, oldHash){
+	hashinit = function (newHash){
 		unpickle(newHash);
 	};
 
-	bean.add(document, 'DOMContentLoaded', init);
 
-}())
+	init();
+});

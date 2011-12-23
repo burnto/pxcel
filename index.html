@@ -10,7 +10,7 @@
 		-webkit-user-select: none;
 	}
 	#container {
-		width: 430px;
+		width: 500px;
 		margin: 50px auto 10px;
 	}
 
@@ -26,19 +26,32 @@
 		height: 400px;
 		width: 400px;
 	}
-	#previewCanvas {
+	#previews {
+		margin-left: 414px;
+		width: 40px;
+		position: relative;
+	}
+	canvas.preview {
 		padding: 1px;
 		border: 1px solid #ccc;
-	}
-/*	#controls {
 		position: absolute;
-		left: 420px;
-		top: 0px;
+		top: 0;
+		left: 0;
 	}
-*/	</style>
-	<script type="text/javascript" src="signals.min.js"></script>
-	<script type="text/javascript" src="hasher.min.js"></script>
-	<script type="text/javascript" src='bean.min.js'></script>
+	canvas.zoom1 {
+		width: 16px;
+		top: 46px;
+	}
+	canvas.zoom2 {
+		width: 32px;
+	}
+	#controls {
+		padding-top: 10px;
+		clear: both;
+	}
+
+	</style>
+	<script type="text/javascript" src="ender.min.js"></script>
 	<script type="text/javascript" src='pxcel.js'></script>
 </head>
 <body>
@@ -46,7 +59,10 @@
 	<div id='canvasContainer'>
 		<canvas id="canvas" width='400px' height='400px'></canvas>
 	</div>
-	<canvas id="previewCanvas" width='16px' height='16px'></canvas>
+	<div id='previews'>
+		<canvas class='preview zoom2' width='32px' height='32px'></canvas>
+		<canvas class='preview zoom1' width='16px' height='16px'></canvas>
+	</div>
 	<section id='controls'>
 		<a href='#' id='clear'>clear</a>
 		<a href='#' id='invert'>invert</a>
