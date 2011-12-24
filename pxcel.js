@@ -29,14 +29,24 @@ $.domReady(function() {
 		}
 
 		// draw events
-		$(canvas).on('mousedown touchstart', mousedown);
-		$(canvas).on('mousemove touchmove', mousemove);
-		$(document).on('mouseup touchend touchcancel', mouseup);
+		$(canvas).on('mousedown', mousedown);
+		$(canvas).on('mousemove', mousemove);
+		$(document).on('mouseup', mouseup);
 
+		canvas.addEventListener( 'touchstart', function(e) {
+			var offset = $(canvas).offset();
+			var x = e.targetTouches[0].pageX - offset.left;
+			var y = e.targetTouches[0].pageY - offset.top;
+			// alert([e.targetTouches[0].pageX - offset.left, e.targetTouches[0].pageY - offset.top]);
+  		 	context.fillRect(0,0,x, y);
+			e.preventDefault();
+			e.stopPropagation();
+		}, false);
+		// canvas.addEventListener( 'touchmove', function() {
+  // 		 	context.fillRect(0,0,e.offsetX, e.offsetY);
+		// 	e.preventDefault();
+		// }, false);
 
-		document.body.addEventListener('touchmove', function(event) {
-		  event.preventDefault();
-		}, false); 
 
 		$("#clear").click(clear);
 		$("#invert").click(invert);
