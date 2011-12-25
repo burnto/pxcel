@@ -172,7 +172,8 @@ $.domReady(function() {
 		$.hash(pickle()); //change hash value (generates new history record)
 		var icon = $("#favicon").get(0);
 		(newIcon = icon.cloneNode(true)).setAttribute('href',$("canvas.zoom1").get(0).toDataURL());
-		icon.parentNode.replaceChild(newIcon,icon);
+		icon.parentNode.appendChild(newIcon);
+		icon.parentNode.removeChild(icon);
 	}
 
 	hashchange = function (newHash){
