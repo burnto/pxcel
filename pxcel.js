@@ -14,6 +14,7 @@ $.domReady(function() {
 		numPreviews = 2,
 		values = [],
 		pen = null,
+		title = document.title,
 		context;
 
 	
@@ -42,30 +43,16 @@ $.domReady(function() {
 			e.preventDefault();
 			e.stopPropagation();
 		}, false);
-		// canvas.addEventListener( 'touchmove', function() {
-  // 		 	context.fillRect(0,0,e.offsetX, e.offsetY);
-		// 	e.preventDefault();
-		// }, false);
-
 
 		$("#clear").click(clear);
 		$("#invert").click(invert);
 		$("#download").click(download);
 
-		// TODO
-		// $(document).keypress(function(e) {
-		// 	console.log(e)
-		// 	console.log(e.key)
-		// });
-
 		// custom events
 		$(document.body).on('pxchange', setPixel);
 
-		$(window).on('hashchange', function () {
-		    var hash = $.hash();
-		    hashinit(hash);
-		});
-		hashinit($.hash())	
+		$(window).on('hashchange', hashchange);
+		hashchange($.hash())	
 	},
 
 	clear = function (e) {
@@ -91,7 +78,6 @@ $.domReady(function() {
 	},
 
 	download = function (e) {
-		// console.log();
 		window.location = $("canvas.zoom1").get(0).toDataURL();
 	},
 
@@ -178,16 +164,19 @@ $.domReady(function() {
 	},
 
 	save = function () {
-		$.hash(pickle()); //change hash value (generates new history record)
+		var newHash = pickle() + "/" + title;
+		$.hash(newHash); //change hash value (generates new history record)
 		updateFavicon();
 	}
 
-	hashchange = function (newHash){
-		// var h = hasher.getHashAsArray()
-	};
-
-	hashinit = function (newHash){
-		unpickle(newHash);
+	hashchange = function (){
+	    var hash = $.hash().split('/', 2);
+	    if (hash.length > 1) {
+	    	title = hash[1].replace(/(<|>)/g, '').replace(/_/g, ' ');
+	    	document.title = title;
+	    	$("h1").text(title);
+	    }
+		unpickle(hash[0]);
 	};
 
 
