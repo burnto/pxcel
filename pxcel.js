@@ -127,8 +127,8 @@ $.domReady(function() {
 	setPixel = function (i, v) {
 		var x = i % size;
 		var y = Math.floor(i / size);
-		context.fillStyle = 'black';
-		var method = v ? 'fillRect' : 'clearRect';
+		context.fillStyle = v ? 'black' : 'white';
+		var method = 'fillRect';
 		context[method](x * zoom, y * zoom, zoom, zoom);
 
 		for (var z = 1; z < numPreviews + 1; z++) {
@@ -139,6 +139,14 @@ $.domReady(function() {
 				ctx[method](x * z, y * z, z, z);
 			}
 		}
+	},
+
+	updateFavicon = function () {
+		var oldLink = document.getElementById('favicon');
+		var link = oldLink.cloneNode(true);
+		var img = document.createElement('img');
+		link.href = $('canvas.zoom1').get(0).toDataURL('image/png');
+		oldLink.parentNode.replaceChild(link, oldLink);
 	},
 
 	pickle = function () {
@@ -152,7 +160,6 @@ $.domReady(function() {
 		}
 		return s;
 	},
-
 	
 	unpickle = function (hash) {
 		var s = hash;
@@ -167,15 +174,12 @@ $.domReady(function() {
 				}
 			}
 		}
+		updateFavicon();
 	},
 
 	save = function () {
 		$.hash(pickle()); //change hash value (generates new history record)
-		var oldLink = document.getElementById('favicon');
-		var link = oldLink.cloneNode(true);
-		var img = document.createElement('img');
-		link.href = $('canvas.zoom1').get(0).toDataURL('image/png');
-		oldLink.parentNode.replaceChild(link, oldLink);
+		updateFavicon();
 	}
 
 	hashchange = function (newHash){
