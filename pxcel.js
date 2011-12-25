@@ -77,9 +77,11 @@ $.domReady(function() {
 	  e.stopPropagation();
 	},
 
-	download = function (e) {
-		window.location = $("canvas.zoom1").get(0).toDataURL();
-	},
+	// download = function (e) {
+	// 	window.location = $("canvas.zoom1").get(0).toDataURL();
+	// 	e.preventDefault();
+	// 	e.stopPropagation();
+	// },
 
 
 	mousedown = function (e) {
@@ -168,6 +170,7 @@ $.domReady(function() {
 		$.hash(newHash); //change hash value (generates new history record)
 		updateFavicon();
 		addthis.update('share', 'url', window.location.href);
+		$("#download").attr('href', $("canvas.zoom1").get(0).toDataURL());
 	}
 
 	hashchange = function (){
@@ -178,6 +181,7 @@ $.domReady(function() {
 	    	$("h1").text(title);
 	    }
 		unpickle(hash[0]);
+		$("#download").attr('href', $("canvas.zoom1").get(0).toDataURL());
 	};
 
 
