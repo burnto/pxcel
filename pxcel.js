@@ -50,6 +50,7 @@ $.domReady(function() {
 
 		$("#clear").click(clear);
 		$("#invert").click(invert);
+		$("#download").click(download);
 
 		// TODO
 		// $(document).keypress(function(e) {
@@ -89,11 +90,16 @@ $.domReady(function() {
 	  e.stopPropagation();
 	},
 
+	download = function (e) {
+		console.log($("canvas.zoom1").get(0).toDataURL());
+	},
+
 
 	mousedown = function (e) {
 		var i = getIndex(e);
 		pen = values[i] = !values[i];
-		$(document.body).emit('pxchange', [i, pen]);		
+		$(document.body).emit('pxchange', [i, pen]);
+		$("#previews").css({display: 'block'});
 	},
 
 	mousemove = function (e) {
@@ -120,15 +126,16 @@ $.domReady(function() {
 	setPixel = function (i, v) {
 		var x = i % size;
 		var y = Math.floor(i / size);
-		context.fillStyle = (v ? 'black' : 'white');
-		context.fillRect(x * zoom, y * zoom, zoom, zoom);
+		context.fillStyle = 'black';
+		var method = v ? 'fillRect' : 'clearRect';
+		context[method](x * zoom, y * zoom, zoom, zoom);
 
 		for (var z = 1; z < numPreviews + 1; z++) {
 			var c = $("canvas.preview.zoom" + z).get(0);
 			if (c) {
 				var ctx = c.getContext('2d');
 				ctx.fillStyle = context.fillStyle;
-				ctx.fillRect(x * z, y * z, z, z);
+				ctx[method](x * z, y * z, z, z);
 			}
 		}
 	},
@@ -163,6 +170,9 @@ $.domReady(function() {
 
 	save = function () {
 		$.hash(pickle()); //change hash value (generates new history record)
+		var icon = $("#favicon").get(0);
+		(newIcon = icon.cloneNode(true)).setAttribute('href',$("canvas.zoom1").get(0).toDataURL());
+		icon.parentNode.replaceChild(newIcon,icon);
 	}
 
 	hashchange = function (newHash){
