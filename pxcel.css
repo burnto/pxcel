@@ -1,0 +1,80 @@
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans:400,700);
+@import url(html5boiler.css);
+
+body {
+	margin: 0;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	font-family: 'Droid Sans', sans-serif;
+}
+#container {
+	width: 500px;
+	margin: 50px auto 10px;
+	color: gray;
+	text-decoration: none;
+}
+
+#canvasContainer {
+	border: 1px solid #ccc;
+	padding: 1px;
+	height: 400px;
+	float: left;
+	margin-right: 5px;
+}
+#canvas {
+	cursor: pointer;
+	height: 400px;
+	width: 400px;
+}
+#previews {
+	margin-left: 414px;
+	width: 40px;
+	position: relative;
+	display: none;
+}
+canvas {
+	-webkit-tap-highlight-color: transparent;		
+}
+
+#previes .preview {
+	padding: 1px;
+	border: 1px solid #ccc;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+#previews .zoom1 {
+	width: 16px;
+	top: 46px;
+}
+#previews .zoom2 {
+	width: 32px;
+}
+#controls {
+	padding-top: 10px;
+	clear: both;
+	margin-right: 62px;
+}
+#settings {
+	float: left;
+}
+#settings a {
+	display: inline-block;
+	background-color: white;
+	border: 1px solid #ccc;
+	padding: 2px 5px;
+	color: gray;
+	text-decoration: none;
+}
+#settings a:hover {
+	background-color: gray;
+	color: white;
+}
+
+
+
+#share {
+	float: right;
+}
+
+@import url(html5helper.css);
