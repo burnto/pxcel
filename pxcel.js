@@ -169,7 +169,6 @@ $.domReady(function() {
 		var newHash = pickle() + "/" + title;
 		$.hash(newHash); //change hash value (generates new history record)
 		updateFavicon();
-		addthis.update('share', 'url', window.location.href);
 		$("#download").attr('href', $("canvas.zoom1").get(0).toDataURL());
 	}
 
