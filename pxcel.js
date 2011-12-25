@@ -91,7 +91,8 @@ $.domReady(function() {
 	},
 
 	download = function (e) {
-		console.log($("canvas.zoom1").get(0).toDataURL());
+		// console.log();
+		window.location = $("canvas.zoom1").get(0).toDataURL();
 	},
 
 
@@ -170,10 +171,11 @@ $.domReady(function() {
 
 	save = function () {
 		$.hash(pickle()); //change hash value (generates new history record)
-		var icon = $("#favicon").get(0);
-		(newIcon = icon.cloneNode(true)).setAttribute('href',$("canvas.zoom1").get(0).toDataURL());
-		icon.parentNode.appendChild(newIcon);
-		icon.parentNode.removeChild(icon);
+		var oldLink = document.getElementById('favicon');
+		var link = oldLink.cloneNode(true);
+		var img = document.createElement('img');
+		link.href = $('canvas.zoom1').get(0).toDataURL('image/png');
+		oldLink.parentNode.replaceChild(link, oldLink);
 	}
 
 	hashchange = function (newHash){
