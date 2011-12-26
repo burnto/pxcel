@@ -14,12 +14,19 @@ h1 {
 }
 
 #container {
-	width: 400px;
+	width: 404px;
 	padding: 10px 100px;
 	margin: 0 auto;
 	color: gray;
 	text-decoration: none;
 	position: relative;
+}
+
+#paletteContainer {
+	position: absolute;
+	width: 90px;
+	left: 0;
+	/*margin-right: 10px;*/
 }
 
 #canvasContainer {
@@ -37,8 +44,7 @@ h1 {
 #previews {
 	width: 40px;
 	position: absolute;
-	right: 48px;
-	display: none;
+	left: 514px;
 }
 canvas {
 	-webkit-tap-highlight-color: transparent;		
